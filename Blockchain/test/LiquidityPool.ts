@@ -55,5 +55,27 @@ describe("Liquidity Pool", () => {
         expect((await liquidityPool.balanceOf(firstAcc))).to.lessThan(60000);
     }) 
 
-    it("swaps")
+    it("swaps CLK to MIR", async() => {
+        const {CLK, MIR, liquidityPool, firstAcc, secondAcc} = await loadFixture(deployLpFixture)
+        await CLK.mint(12000);  // clk -> 13_000
+        await MIR.mint(10000);   // mir -> 11_000
+        await CLK.transfer(secondAcc, 3000);
+        await MIR.transfer(secondAcc, 1000);
+
+        //approving liqPool address for transfer
+        await CLK.approve(liquidityPool.getAddress(), 10000);
+        await MIR.approve(liquidityPool.getAddress(), 10000);
+
+        //staking 10_000;
+        await liquidityPool.addLiquidity(10000, 10000);
+
+        //approving LP from secAcc
+        await CLK.connect(secondAcc).approve(liquidityPool.getAddress(), 3000);
+
+        //swap
+        await liquidityPool.connect(secondAcc).swapAtoB(2000);
+
+        expect(await MIR.balanceOf(secondAcc)).to.greaterThan(2600);
+
+    })
 })
