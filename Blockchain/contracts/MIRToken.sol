@@ -7,7 +7,7 @@ contract MIRToken is ERC20 {
     address private admin;
     constructor() ERC20("Mirror", "MIR") {
         admin = msg.sender;
-        _mint(msg.sender, 1000);
+        _mint(msg.sender, 10 * 1e18);
     }
 
     modifier onlyAdmin {
