@@ -1,20 +1,136 @@
-import { Config, UseAccountReturnType } from "wagmi";
+import { Config, UseAccountReturnType, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { publicClient } from "../Pages/LandingPage";
+// import LpJson from '../Constants/LineaSepolia/LiquidityPool.json'
+import LpJson from '../Constants/LocalHost/LiquidityPool.json'
+import ClkJson from '../Constants/LocalHost/CLKToken.json'
+import MirJson from '../Constants/LocalHost/MIRToken.json'
+import { useEffect, useState } from "react";
+import { formatEther, parseEther } from "viem";
 
-const LiquidityPoolControl = ({address, account, symbol}: {address: string, account: UseAccountReturnType<Config>, symbol: string}) => {
+const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<Config>, symbol: string}) => {
+    const contractAddress = LpJson.address 
+    const contractAbi = LpJson.abi;
+    const [InputClkToken, setInputClkToken] = useState<number>(0)
+    const [InputMirToken, setInputMirToken] = useState<number>(0)
+    const [balance, setBalance] = useState<any>(0)
+    const [clkToSwap, setClkToSwap] = useState<number>(0);
+    const [mirToSwap, setMirToSwap] = useState<number>(0);
+
+    const {writeContract, isPending, error, data: hash} = useWriteContract();
+    const { isLoading, isSuccess, isError } = useWaitForTransactionReceipt({
+        hash,
+    });
+
+    useEffect(() => {getBalance()}, [])
+
+    const getBalance = async() => {
+        const data = await publicClient.readContract({
+            address: `0x${contractAddress.slice(2)}`,
+            abi: contractAbi,
+            args: [account.address],
+            functionName: "balanceOf"
+        })
+        setBalance(data);
+    }
+
+    const changeInputClkToken = async(e:any) => {
+        setInputClkToken(e.target.value);
+    }
+    const changeInputMirToken = async(e:any) => {
+        setInputMirToken(e.target.value)
+    }
+
+    const approve = async() => {
+        try {
+            console.log(InputClkToken, InputMirToken)
+            const approveClk = await writeContract({
+                abi: ClkJson.abi,
+                address: `0x${ClkJson.address.slice(2)}`,
+                functionName: 'approve',
+                args: [contractAddress, parseEther(InputClkToken.toString())]
+            })
+            const approveMir = await writeContract({
+                abi: MirJson.abi,
+                address: `0x${MirJson.address.slice(2)}`,
+                functionName: 'approve',
+                args: [contractAddress, parseEther(InputMirToken.toString())]
+            })
+            console.log(approveClk, approveMir)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const provideLiquidity = async() => {
+        try {
+            if(InputClkToken !== 0 && InputMirToken !== 0){
+                const res = await writeContract({
+                    abi: contractAbi,
+                    address: `0x${contractAddress.slice(2)}`,
+                    functionName: "addLiquidity",
+                    args: [parseEther(InputClkToken.toString()), parseEther(InputMirToken.toString())]
+                })
+                console.log(res)
+            }else{
+                console.log("no liquidity Provided");
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const changeClkToSwap = (e:any) => {
+        setClkToSwap(e.target.value)
+    }
+
+    const changeMirToSwap = (e:any) => {
+        setMirToSwap(e.target.value)
+    }
+
+    const swapCLK = async() => {
+        try {
+            const res = await writeContract({
+                abi: contractAbi,
+                address: `0x${contractAddress.slice(2)}`,
+                functionName: 'swapAtoB',
+                args: [parseEther(clkToSwap.toString())]
+            })
+            console.log(res)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const swapMIR = async() => {
+        try {
+            const res = await writeContract({
+                abi: contractAbi,
+                address: `0x${contractAddress.slice(2)}`,
+                functionName: 'swapBtoA',
+                args: [parseEther(mirToSwap.toString())]
+            })
+            console.log(res)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
     return ( 
         <div className="flex flex-col w-full rounded-lg gap-y-2 bg-gray-300 p-3">
 
             <div className="flex w-full items-center justify-center gap-x-2">
                 <div>Contract Address: </div>
-                <input type="text" disabled value={address.slice(0, 5) + "..." + address.slice(-5)}/>
+                <input type="text" disabled value={contractAddress.slice(0, 5) + "..." + contractAddress.slice(-5)}/>
             </div>
 
             <div className="flex w-full flex-col gap-y-1">
-                <div className="w-5/12 flex justify-between rounded-lg gap-x-2">
-                    <input className="p-1 rounded-lg" placeholder="Amount CLK" id="ClkPoolAmt" type="number" min={50}/>
-                    <input className="p-1 rounded-lg" placeholder="Amount MIR" id="MirPoolAmt" type="number" min={50}/>
+                <div className="w-full flex justify-between rounded-lg gap-x-2">
+                    <input onChange={changeInputClkToken} className="p-1 w-full rounded-lg" placeholder="Amount CLK" id="ClkPoolAmt" type="number" min={50}/>
+                    <input onChange={changeInputMirToken} className="p-1 w-full rounded-lg" placeholder="Amount MIR" id="MirPoolAmt" type="number" min={50}/>
                 </div>
-                <button className="bg-slate-400 p-1 rounded-md text-white text-xl">Add Liquidity</button>
+                <button onClick={approve} className="bg-slate-400 p-1 rounded-md text-white text-xl">Approve Transfer</button>
+                <button onClick={provideLiquidity} className="bg-slate-400 p-1 rounded-md text-white text-xl">Add Liquidity</button>
             </div>
 
             <div className="w-full flex flex-col gap-y-1">
@@ -24,18 +140,18 @@ const LiquidityPoolControl = ({address, account, symbol}: {address: string, acco
 
             <div className="w-full flex gap-x-2">
                 <div className="w-full flex flex-col gap-y-1">
-                    <input id="ClkToMir" className="p-1 rounded-lg" placeholder="Amount of CLK" type="number" min={50}/>
-                    <button className="bg-slate-400 p-1 rounded-md text-white text-xl">Swap CLK</button>
+                    <input id="ClkToMir" onChange={changeClkToSwap} className="p-1 rounded-lg" placeholder="Amount of CLK" type="number" min={50}/>
+                    <button onClick={swapCLK} className="bg-slate-400 p-1 rounded-md text-white text-xl">Swap CLK</button>
                 </div>
                 <div className="w-full flex flex-col gap-y-1">
-                    <input id="MirToClk" className="p-1 rounded-lg" placeholder="Amount of MIR" type="number" min={50}/>
-                    <button className="bg-slate-400 p-1 rounded-md text-white text-xl">Swap MIR</button>
+                    <input id="MirToClk" onChange={changeMirToSwap} className="p-1 rounded-lg" placeholder="Amount of MIR" type="number" min={50}/>
+                    <button onClick={swapMIR} className="bg-slate-400 p-1 rounded-md text-white text-xl">Swap MIR</button>
                 </div>
             </div>
 
             <div className="flex w-full items-center justify-center gap-x-2">
                 <div>balance {symbol}: </div>
-                <input type="text" disabled value={address.slice(0, 5) + "..." + address.slice(-5)}/>
+                <input type="text" disabled value={formatEther(balance) + " " + symbol}/>
             </div>
 
         </div>

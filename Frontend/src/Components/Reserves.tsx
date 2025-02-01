@@ -1,0 +1,46 @@
+import usdcImg from '../assets/usdc.png'
+import { useEffect, useState } from "react";
+import { publicClient } from "../Pages/LandingPage";
+import lpJson from '../Constants/LocalHost/LiquidityPool.json'
+// import lpJson from '../Constants/LineaSepolia/LiquidityPool.json'
+import { formatEther } from "viem";
+
+const Reserves = () => {
+    const [clkReserve, setClkReserve] = useState<any>(0);
+    const [mirReserve, setMirReserve] = useState<any>(0);
+    const getReserveData = async() => {
+        const resA = await publicClient.readContract({
+            address: `0x${lpJson.address.slice(2)}`,
+            abi: lpJson.abi,
+            functionName: "reserveA",
+            args: []
+        })
+        const resB = await publicClient.readContract({
+            address: `0x${lpJson.address.slice(2)}`,
+            abi: lpJson.abi,
+            functionName: "reserveB",
+            args: []
+        })
+        console.log(resA, resB)
+        setClkReserve(resA);
+        setMirReserve(resB);
+    }
+
+    useEffect(() => {getReserveData()}, []);
+
+    return ( <div className="flex justify-center items-center h-full gap-y-4 flex-col">
+        <span>Reserves in the Pool</span>
+        <div className="w-full justify-center items-center flex gap-x-3">
+            <div className="flex flex-col items-center justify-between gap-y-2">
+                <img src={usdcImg}/>
+                <span>{formatEther(clkReserve)} CLK</span>
+            </div>
+            <div className="flex items-center flex-col justify-between h-full gap-y-2">
+                <img src={usdcImg}/>
+                <span>{formatEther(mirReserve)} MIR</span> 
+            </div>
+        </div>
+    </div> );
+}
+ 
+export default Reserves;

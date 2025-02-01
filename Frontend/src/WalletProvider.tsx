@@ -5,7 +5,8 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { HardhatNetwork } from './ChainConfig';
+// import { HardhatNetwork } from './ChainConfig';
+import { hardhat } from 'viem/chains';
 import {
   QueryClientProvider,
   QueryClient,
@@ -16,7 +17,7 @@ import { lineaSepolia } from 'viem/chains';
 const config = getDefaultConfig({
   appName: 'Dex',
   projectId: '1',
-  chains: [lineaSepolia, HardhatNetwork],
+  chains: [lineaSepolia, hardhat],
   ssr: false,
 });
 
