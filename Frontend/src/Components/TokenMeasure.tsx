@@ -106,7 +106,7 @@ const TokenMeasure = ({account, symbol}: {account: UseAccountReturnType<Config>,
             </div>
             <div className="flex w-full items-center justify-center gap-x-2">
                 <div>balance: </div>
-                <input type="text" disabled value={formatEther(balance) + " " + symbol}/>
+                <input type="text" className="text-center" disabled value={parseFloat(formatEther(balance)).toFixed(4) + " " + symbol}/>
             </div>
         </div>
      );

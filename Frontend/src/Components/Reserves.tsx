@@ -33,11 +33,11 @@ const Reserves = () => {
         <div className="w-full justify-center items-center flex gap-x-3">
             <div className="flex flex-col items-center justify-between gap-y-2">
                 <img src={usdcImg}/>
-                <span>{formatEther(clkReserve)} CLK</span>
+                <span>{parseFloat(formatEther(clkReserve)).toFixed(4)} CLK</span>
             </div>
             <div className="flex items-center flex-col justify-between h-full gap-y-2">
                 <img src={usdcImg}/>
-                <span>{formatEther(mirReserve)} MIR</span> 
+                <span>{parseFloat(formatEther(mirReserve)).toFixed(4)} MIR</span> 
             </div>
         </div>
     </div> );

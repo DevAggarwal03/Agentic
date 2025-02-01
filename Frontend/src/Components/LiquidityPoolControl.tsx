@@ -16,6 +16,8 @@ const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<
     const [clkToSwap, setClkToSwap] = useState<number>(0);
     const [mirToSwap, setMirToSwap] = useState<number>(0);
 
+    const [removeLiqAmt, setRemoveLiqAmt] = useState<number>(0);
+
     const {writeContract, isPending, error, data: hash} = useWriteContract();
     const { isLoading, isSuccess, isError } = useWaitForTransactionReceipt({
         hash,
@@ -79,6 +81,25 @@ const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<
         }
     }
 
+    const changeRemoveLiqAmt = (e:any) => {
+        setRemoveLiqAmt(e.target.value)
+    }
+
+    const removeLiquidity = async() => {
+        try {
+            console.log(`removing liquidity`)
+            const res = await writeContract({
+                abi: contractAbi,
+                address: `0x${contractAddress.slice(2)}`,
+                functionName: `removeLiquidity`,
+                args: [parseEther(removeLiqAmt.toString())]
+            })
+            console.log(res)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const changeClkToSwap = (e:any) => {
         setClkToSwap(e.target.value)
     }
@@ -134,8 +155,8 @@ const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<
             </div>
 
             <div className="w-full flex flex-col gap-y-1">
-                <input id="removeLiquidity" className="p-1 rounded-lg" placeholder="Amount to Remove" type="number" min={50}/>
-                <button className="bg-slate-400 p-1 rounded-md text-white text-xl">Remove Liquidity</button>
+                <input onChange={changeRemoveLiqAmt} id="removeLiquidity" className="p-1 rounded-lg" placeholder="Amount to Remove" type="number" min={50}/>
+                <button onClick={removeLiquidity} className="bg-slate-400 p-1 rounded-md text-white text-xl">Remove Liquidity</button>
             </div>
 
             <div className="w-full flex gap-x-2">
@@ -151,7 +172,7 @@ const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<
 
             <div className="flex w-full items-center justify-center gap-x-2">
                 <div>balance {symbol}: </div>
-                <input type="text" disabled value={formatEther(balance) + " " + symbol}/>
+                <input type="text" disabled className="text-center" value={parseFloat(formatEther(balance)).toFixed(4) + " " + symbol}/>
             </div>
 
         </div>
