@@ -1,49 +1,35 @@
-import * as React from 'react';
 import Navbar from '../Components/Navbar';
 import { createPublicClient, http } from 'viem';
-import CLKTokenJson from '../../../Blockchain/artifacts/contracts/CLKToken.sol/CLKToken.json'
 import { lineaSepolia } from 'viem/chains';
 import { useAccount, useWriteContract } from 'wagmi';
+import TokenMeasure from '../Components/TokenMeasure';
+import LiquidityPoolControl from '../Components/LiquidityPoolControl';
 
-const publicClient = createPublicClient({ 
+export const publicClient = createPublicClient({ 
     chain: lineaSepolia,
     transport: http()
   })
 
 const LandingPage = () => {
-    // const CLKTokenAddress = "0x87ee4878BE588FF208c16EBcf4bd1BA51CcE0B4A" //linea sepolia
-    const CLKTokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" //hardhat network
-    const {writeContract} = useWriteContract();
     const account = useAccount()
-    const showBalance = async() => {
-        const data = await publicClient.readContract({
-            address: CLKTokenAddress,
-            abi: CLKTokenJson.abi,
-            args: ["0x5D8c93Ccf0C1FEB3b93B6b5D3d4eFFe08c2aF3f2"],
-            functionName: 'balanceOf',
-          })
-
-          console.log(data)
-    }
-
-    const mintToken = async() => {
-        const res = writeContract({
-            abi: CLKTokenJson.abi,
-            address: CLKTokenAddress,
-            functionName: "mint",
-            args: [account.address, 1000000000000000000n],
-            account: account.address
-        })
-        console.log(res);
-    }
+    const clkTokenAddr = "0x6AFF5e1b5419286fa550C172848c9712abCa910f";
+    const mirTokenAddr = "0xe9Be8b2E9Cb6CFa2fDE8839C4608f3B74bA0210D";
+    const LpAddr = "0xC6418bafF7c7e345723C871e8b6057C56f59b537";
+    
     return ( 
     <div className='w-full min-h-screen'>
         <Navbar/>
-        <div className='w-full pt-40 flex justify-center items-center'>
+        <div className='w-full pt-20 gap-y-4 flex-col flex justify-center items-center'>
+            <div className='flex gap-x-4'>
+                <div>
+                    <TokenMeasure address={clkTokenAddr} account={account} symbol='CLK'/>
+                </div>
+                <div>
+                    <TokenMeasure address={mirTokenAddr} account={account} symbol='MIR'/>
+                </div>
+            </div>
             <div>
-                {/* <button className='bg-gray-500 text-white rounded-lg p-3 text-xl'>total Supply</button> */}
-                <button onClick={showBalance} className='bg-gray-500 text-white rounded-lg p-3 text-xl'>total Supply</button>
-                <button onClick={mintToken} className='bg-gray-500 text-white rounded-lg p-3 text-xl'>mint token</button>
+                <LiquidityPoolControl address={LpAddr} account={account} symbol='LP'/>
             </div>
         </div>
     </div> 
