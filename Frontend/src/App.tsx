@@ -3,6 +3,7 @@ import './App.css'
 import LandingPage from './Pages/LandingPage'
 import SwapPage from './Pages/SwapPage'
 import TokensPage from './Pages/TokensPage'
+import PoolsPage from './Pages/PoolsPage'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Route index element={<LandingPage/>}/>
         <Route path='/swap' element={<SwapPage/>}/>
         <Route path='/tokens' element={<TokensPage/>}/>
+        <Route path='/pools' element={<PoolsPage/>}/>
       </Routes>
     </div>
   )

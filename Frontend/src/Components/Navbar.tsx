@@ -9,7 +9,7 @@ const Navbar = () => {
                 <div className="text-white text-3xl font-bold">DEX</div>
                 <div className="flex gap-x-4 text-white text-xl">
                     <NavLink to="/swap" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Swap</span></NavLink>
-                    <NavLink to="/pool" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Pool</span></NavLink>
+                    <NavLink to="/pools" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Pool</span></NavLink>
                     <NavLink to="/tokens" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Tokens</span></NavLink>
                 </div>
                 <div className="space-x-4">
