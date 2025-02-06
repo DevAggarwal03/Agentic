@@ -1,11 +1,17 @@
 import { ConnectButton, WalletButton } from "@rainbow-me/rainbowkit";
+import { Link, NavLink } from "react-router-dom";
 
 
 const Navbar = () => {
     return (
-        <div>
-            <nav className="border border-black p-4 flex justify-between items-center">
-                <div className="text-black text-3xl font-bold">DEX</div>
+        <div className="bg-none">
+            <nav className="border-b border-white bg-none p-4 flex justify-between items-center">
+                <div className="text-white text-3xl font-bold">DEX</div>
+                <div className="flex gap-x-4 text-white text-xl">
+                    <NavLink to="/swap" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Swap</span></NavLink>
+                    <NavLink to="/pool" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Pool</span></NavLink>
+                    <NavLink to="/tokens" className={({ isActive }) => isActive ? "text-blue-500" : ""}><span>Tokens</span></NavLink>
+                </div>
                 <div className="space-x-4">
                     <ConnectButton
                         chainStatus="icon"

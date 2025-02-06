@@ -1,13 +1,14 @@
 import Navbar from '../Components/Navbar';
 import { createPublicClient, http } from 'viem';
-import { hardhat, lineaSepolia } from 'viem/chains';
+import { baseSepolia, hardhat } from 'viem/chains';
 import { useAccount } from 'wagmi';
-import TokenMeasure from '../Components/TokenMeasure';
-import LiquidityPoolControl from '../Components/LiquidityPoolControl';
-import Reserves from '../Components/Reserves';
+// import TokenMeasure from '../Components/TokenMeasure';
+// import LiquidityPoolControl from '../Components/LiquidityPoolControl';
+// import Reserves from '../Components/Reserves';
+import Chatbot from '../Components/ChatBot';
 
 export const publicClient = createPublicClient({ 
-    chain: hardhat,
+    chain: baseSepolia,
     transport: http()
   })
 
@@ -18,7 +19,7 @@ const LandingPage = () => {
     <div className='w-full min-h-screen'>
         <Navbar/>
         <div className='w-full pt-20 gap-y-4 flex-col flex justify-center items-center'>
-            <div className='flex gap-x-4'>
+            {/* <div className='flex gap-x-4'>
                 <div>
                     <TokenMeasure account={account} symbol='CLK'/>
                 </div>
@@ -31,6 +32,9 @@ const LandingPage = () => {
                 <div>
                     <Reserves/>
                 </div>
+            </div> */}
+            <div>
+                <Chatbot/>
             </div>
         </div>
     </div> 
