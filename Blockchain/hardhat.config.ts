@@ -10,6 +10,10 @@ const config: HardhatUserConfig = {
       // chainId: 59141,
       url: "https://rpc.sepolia.linea.build",
       accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
+    BaseSepolia: {
+      url: "https://sepolia.base.org",
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
     }
   },
 };
