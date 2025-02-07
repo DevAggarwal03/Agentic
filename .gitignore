@@ -1,1 +1,7 @@
 .env
+python/examples/cdp-langchain-chatbot/wallet_data.txt
+wallet_data.txt
+python/cdp-langchain/poetry.lock
+python/cdp-agentkit-core/poetry.lock
+python/twilio-python/poetry.lock
+python/examples/cdp-langchain-chatbot/poetry.lock
