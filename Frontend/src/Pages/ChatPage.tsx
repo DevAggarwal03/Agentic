@@ -8,7 +8,10 @@ interface Message {
 }
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    // Initial welcome message
+    { role: 'bot', content: "Hi, what can I do for you?" }
+  ]);
   const [input, setInput] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -84,60 +87,71 @@ const ChatPage = () => {
 
   return (
     <div className='flex flex-col h-screen bg-gray-900'>
-    <Navbar />
+        <Navbar/>
+    
     <div className="flex flex-col h-screen bg-gray-900">
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
+      {/* Main container with max width */}
+      <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col">
+        {/* Chat header */}
+        <div className="p-4 border-b border-gray-700">
+          <h1 className="text-2xl font-bold text-white">Chat with AI Assistant</h1>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((message, index) => (
             <div
-              className={`max-w-[80%] rounded-lg p-4 ${
-                message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-white'
+              key={index}
+              className={`flex ${
+                message.role === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              <pre className="whitespace-pre-wrap font-sans">
-                {message.content}
-              </pre>
+              <div
+                className={`max-w-[80%] rounded-lg p-4 ${
+                  message.role === 'user'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-800 text-white'
+                }`}
+              >
+                <pre className="whitespace-pre-wrap font-sans">
+                  {message.content}
+                </pre>
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Form */}
-      <form 
-        onSubmit={sendMessage}
-        className="border-t border-gray-700 p-4 bg-gray-800"
-      >
-        <div className="flex gap-4">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={!socket || isConnecting}
-          />
-          <button
-            type="submit"
-            disabled={!socket || isConnecting || !input.trim()}
-            className={`px-6 py-2 rounded-lg font-semibold ${
-              socket && !isConnecting && input.trim()
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {isConnecting ? 'Connecting...' : 'Send'}
-          </button>
+          ))}
+          <div ref={messagesEndRef} />
         </div>
-      </form>
+
+        {/* Input Form */}
+        <div className="border-t border-gray-700 p-4 bg-gray-800">
+          <form 
+            onSubmit={sendMessage}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="flex gap-4">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!socket || isConnecting}
+              />
+              <button
+                type="submit"
+                disabled={!socket || isConnecting || !input.trim()}
+                className={`px-6 py-2 rounded-lg font-semibold ${
+                  socket && !isConnecting && input.trim()
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {isConnecting ? 'Connecting...' : 'Send'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
     </div>
   );

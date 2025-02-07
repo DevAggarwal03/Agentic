@@ -1,9 +1,9 @@
 import { Config, UseAccountReturnType, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { publicClient } from "../Pages/LandingPage";
 // import LpJson from '../Constants/LineaSepolia/LiquidityPool.json'
-import LpJson from '../Constants/LocalHost/LiquidityPool.json'
-import ClkJson from '../Constants/LocalHost/CLKToken.json'
-import MirJson from '../Constants/LocalHost/MIRToken.json'
+import LpJson from '../Constants/BaseSepolia/LiquidityPool.json'
+import ClkJson from '../Constants/BaseSepolia/CLKToken.json'
+import MirJson from '../Constants/BaseSepolia/MIRToken.json'
 import { useEffect, useState } from "react";
 import { formatEther, parseEther } from "viem";
 
@@ -19,9 +19,9 @@ const LiquidityPoolControl = ({account, symbol}: {account: UseAccountReturnType<
     const [removeLiqAmt, setRemoveLiqAmt] = useState<number>(0);
 
     const {writeContract, isPending, error, data: hash} = useWriteContract();
-    const { isLoading, isSuccess, isError } = useWaitForTransactionReceipt({
-        hash,
-    });
+    // const { isLoading, isSuccess, isError } = useWaitForTransactionReceipt({
+    //     hash,
+    // });
 
     useEffect(() => {getBalance()}, [])
 

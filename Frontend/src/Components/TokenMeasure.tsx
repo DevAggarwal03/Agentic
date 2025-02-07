@@ -2,8 +2,8 @@ import { Config, UseAccountReturnType, useWaitForTransactionReceipt } from "wagm
 import { publicClient } from "../Pages/LandingPage";
 // import clkJson from '../Constants/LineaSepolia/CLKToken.json'
 // import mirJson from '../Constants/LineaSepolia/MIRToken.json'
-import clkJson from '../Constants/LocalHost/CLKToken.json'
-import mirJson from '../Constants/LocalHost/MIRToken.json'
+import clkJson from '../Constants/BaseSepolia/CLKToken.json'
+import mirJson from '../Constants/BaseSepolia/MIRToken.json'
 import React, { useEffect, useState } from "react";
 import { useWriteContract } from "wagmi";
 import { formatEther, parseEther } from "viem";
