@@ -23,14 +23,6 @@ const TokensPage = () => {
     address: userAddress,
   });
 
-  const { data: skiMaskData } = useReadContract({
-    address: '0x768BE13e1680b5ebE0024C42c896E3dB59ec0149',
-    abi: erc20Abi,
-    functionName: 'balanceOf',
-    args: [userAddress as `0x${string}`],
-  });
-
-  console.log(skiMaskData);
 
   // Prepare contracts array for useReadContracts
   const contractsToRead = tokens

@@ -2,15 +2,22 @@ import { useEffect, useState } from "react";
 import Navbar from "../Components/Navbar";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { Token, tokens } from "../tokensList";
-import { useAccount, useBalance, useReadContracts } from 'wagmi';
-import { erc20Abi } from "viem";
+import { useAccount, useReadContracts, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
+import { erc20Abi, parseEther } from "viem";
 import { formatUnits } from "viem";
+import axios from 'axios';
 
 interface TokenSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (token: Token) => void;
   selectedToken?: Token;
+}
+
+interface TokenPrices {
+  tokenPrice1: number;
+  tokenPrice2: number;
+  ratio: number;
 }
 
 const SwapPage = () => {
@@ -20,25 +27,32 @@ const SwapPage = () => {
   const [toToken, setToToken] = useState<Token | undefined>(undefined);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [slippage, setSlippage] = useState<string>("0.5");
-  const [fromAmount, setFromAmount] = useState<string>("");
+  const [fromAmount, setFromAmount] = useState<number>(0);
   const [toAmount, setToAmount] = useState<string>("");
-
+  const [fetchingAllowance, setFetchingAllowance] = useState<boolean>(false);
   const { address: userAddress, isConnected } = useAccount();
   const [tokenBalances, setTokenBalances] = useState<{ [key: string]: string }>({});
-
-  // Fetch ETH balance
-  const { data: ethBalance } = useBalance({
-    address: userAddress
-  });
-
+  const [txDetail, setTxDetail] = useState<{
+    to: string,
+    data: string,
+    value: string,
+    gasPrice?: bigint,
+    gas?: string,
+    from?: string
+  } | null>(null);
+  const {sendTransaction, data} = useSendTransaction();
+  
+  const [isSwapping, setIsSwapping] = useState<boolean>(false);
+  
+  
   // Prepare contracts array for useReadContracts
   const contractsToRead = tokens
-    .map(token => ({
-      address: token.address as `0x${string}`,
-      abi: erc20Abi,
-      functionName: 'balanceOf',
-      args: [userAddress as `0x${string}`],
-    }));
+  .map(token => ({
+    address: token.address as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'balanceOf',
+    args: [userAddress as `0x${string}`],
+  }));
 
 
   // Fetch all ERC20 balances in one call
@@ -56,14 +70,14 @@ const SwapPage = () => {
     const newBalances: { [key: string]: string } = {};
     
    // Set ETH balance
-   if (ethBalance) {
-    newBalances['0x0000000000000000000000000000000000000000'] = 
-      formatUnits(ethBalance.value, ethBalance.decimals);
-  }
+//    if (ethBalance) {
+//     newBalances['0x0000000000000000000000000000000000000000'] = 
+//       formatUnits(ethBalance.value, ethBalance.decimals);
+//   }
 
     // Set ERC20 balances
     balancesData?.forEach((balance, index) => {
-      const token = tokens[index + 1]; 
+      const token = tokens[index ]; 
       if (balance.status === 'success' && token) {
         newBalances[token.address] = formatUnits(balance.result as bigint, token.decimals);
       } else {
@@ -73,7 +87,44 @@ const SwapPage = () => {
     });
 
     setTokenBalances(newBalances);
-  }, [balancesData, ethBalance, isConnected, userAddress]);
+  }, [balancesData, isConnected, userAddress]);
+
+  const [prices, setPrices] = useState<TokenPrices | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchPrices = async (token1Address: string, token2Address: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/tokenPrice`, {
+        params: {
+          address1: token1Address,
+          address2: token2Address
+        }
+      });
+      setPrices(response.data);
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update prices when tokens change
+  useEffect(() => {
+    if (fromToken && toToken) {
+      fetchPrices(fromToken.address, toToken.address);
+    }
+  }, [fromToken?.address, toToken?.address]);
+
+  // Calculate output amount when input or prices change
+  useEffect(() => {
+    if (fromAmount && prices?.ratio) {
+      const calculatedAmount = fromAmount * prices.ratio;
+      setToAmount(calculatedAmount.toFixed(6));
+    } else {
+      setToAmount('');
+    }
+  }, [fromAmount, prices?.ratio]);
 
   const TokenSelectModal: React.FC<TokenSelectModalProps> = ({ isOpen, onClose, onSelect, selectedToken }) => {
     if (!isOpen) return null;
@@ -137,9 +188,12 @@ const SwapPage = () => {
     );
   };
 
-  const handleFromAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFromAmount(e.target.value);
-    // Add price calculation logic here
+  const handleFromAmountChange = (value: number) => {
+    setFromAmount(value);
+    if (prices?.ratio) {
+      const calculatedAmount = value * prices.ratio;
+      setToAmount(calculatedAmount.toFixed(6));
+    }
   };
 
   const handleToAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,9 +201,115 @@ const SwapPage = () => {
     // Add price calculation logic here
   };
 
+  const getAllowance = async (tokenAddress: string | undefined) => {
+    if(!tokenAddress) return;
+    try {
+      const allowance = await axios.get(
+        `${import.meta.env.VITE_BACKEND_API_URL}/api/1inch/allowance`,
+        {
+          params: {
+            tokenAddress: tokenAddress,
+            walletAddress: userAddress
+          }
+        }
+      );
+      return allowance.data;
+    } catch (error) {
+      console.error('Error fetching allowance:', error);
+    }
+  }
+
   const handleSwap = async () => {
     // Add swap logic here
     console.log('Swapping tokens...');
+
+    if(!isConnected) {
+      console.log('Connecting wallet...');
+      alert('Please connect your wallet to swap tokens');
+      return;
+    }
+
+    //see allowance
+    setFetchingAllowance(true);
+    const allowance = await getAllowance(fromToken?.address);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('Allowance:', allowance['allowance']);
+    console.log('From amount:', fromAmount);
+    if(fromAmount === 0) {
+      alert('Please enter an amount to swap');
+      return;
+    }
+    if(allowance['allowance'] < fromAmount.toString().padEnd((fromToken?.decimals !== undefined ? fromToken?.decimals : 18) + fromAmount.toString().length, '0')) {
+        try {
+            console.log('fromAmount:', fromAmount.toString().padEnd((fromToken?.decimals !== undefined ? fromToken?.decimals : 18) + fromAmount.toString().length, '0'));
+            const approveAmount = await axios.get(
+                `${import.meta.env.VITE_BACKEND_API_URL}/api/1inch/approve`,
+                {
+                    params: {
+                        tokenAddress: fromToken?.address,
+                        amount: fromAmount.toString().padEnd((fromToken?.decimals !== undefined ? fromToken?.decimals : 18) + fromAmount.toString().length, '0')
+                    }
+                }
+            );
+            console.log('Approve amount:', approveAmount);
+            setTxDetail({
+                to: approveAmount.data.to,
+                data: approveAmount.data.data,
+                value: approveAmount.data.value
+            });
+            setFetchingAllowance(false);
+            console.log('txDetail:', txDetail);
+            console.log('Sending transaction...');
+            const transaction = await sendTransaction({
+                to: `0x${approveAmount.data?.to.slice(2)}`,
+                data: `0x${approveAmount.data?.data.slice(2)}`,
+                value: parseEther(approveAmount.data?.value as string),
+                gasPrice: approveAmount.data?.gasPrice
+            });
+            console.log('Transaction sent:', transaction);
+            return;
+
+        } catch (error) {
+            console.error('Error approving token:', error);
+        }
+    }
+    setFetchingAllowance(false);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsSwapping(true);
+
+    try {
+      console.log('fromToken:', fromToken?.address);
+      console.log('toToken:', toToken?.address);
+      console.log('fromAmount:', fromAmount.toString().padEnd(fromToken?.decimals || 18 + fromAmount.toString().length, '0'));
+      console.log('userAddress:', userAddress);
+      console.log('slippage:', slippage);
+      const swap = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/1inch/swap`, {
+        params: {
+          fromToken: fromToken?.address,
+          toToken: toToken?.address,
+          amount: fromAmount.toString().padEnd(fromToken?.decimals || 18 + fromAmount.toString().length, '0'),
+          walletAddress: userAddress,
+          slippage: slippage
+        }
+      });
+      setTxDetail({
+        to: swap.data.tx.to,
+        data: swap.data.tx.data,
+        gasPrice: swap.data.tx.gasPrice,
+        gas: swap.data.tx.gas,
+        from: swap.data.tx.from,
+        value: swap.data.tx.value
+      });
+      console.log(swap.data)
+      await sendTransaction({
+        to: `0x${swap.data.tx?.to.slice(2)}`,
+        data: `0x${swap.data.tx?.data.slice(2)}`,
+        value: parseEther(swap.data.tx?.value as string),
+        gasPrice: swap.data.tx?.gasPrice,
+      });
+    } catch (error) {
+      console.error('Error swapping tokens:', error);
+    }
   };
 
   return (
@@ -231,7 +391,7 @@ const SwapPage = () => {
                       placeholder="0.0"
                       className="bg-transparent text-2xl text-white outline-none w-[200px]"
                       value={fromAmount}
-                      onChange={handleFromAmountChange}
+                      onChange={(e) => handleFromAmountChange(parseInt(e.target.value))}
                     />
                     <button
                       onClick={() => setIsFromTokenModalOpen(true)}
@@ -263,6 +423,14 @@ const SwapPage = () => {
                   ↓
                 </button>
               </div>
+
+              {/* Price Information
+              {prices && (
+                <div className="price-info text-sm text-gray-400 px-4 py-2">
+                  <div>1 {fromToken?.symbol} = {prices.ratio.toFixed(6)} {toToken?.symbol}</div>
+                  <div>1 {toToken?.symbol} = {(1 / prices.ratio).toFixed(6)} {fromToken?.symbol}</div>
+                </div>
+              )} */}
 
               {/* To Token */}
               <div className="mb-4">
@@ -298,13 +466,20 @@ const SwapPage = () => {
               </div>
               </div>
 
+              {/* Loading State */}
+              {isLoading && (
+                <div className="loading-indicator">
+                  Loading prices...
+                </div>
+              )}
+
               {/* Swap Button */}
               <button 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-2xl"
                 disabled={!fromToken || !toToken}
                 onClick={handleSwap}
               >
-                {!fromToken || !toToken ? 'Select tokens' : 'Swap'}
+                {fetchingAllowance ? 'Fetching allowance...' : (!fromToken || !toToken ? 'Select tokens' : isConnected? 'Swap' : "connect wallet")}
               </button>
             </div>
           </div>

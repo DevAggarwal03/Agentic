@@ -12,14 +12,6 @@ export interface Token {
 export const tokens = [
     {
       "chainId": 8453,
-      "address": "0x0000000000000000000000000000000000000000",
-      "name": "Ether",
-      "symbol": "ETH",
-      "decimals": 18,
-      "logoURI": "https://res.cloudinary.com/dg5ddxvko/image/upload/v1738785154/eth-diamond-black-gray_dlsr8g.png"
-    },
-    {
-      "chainId": 8453,
       "address": "0x768BE13e1680b5ebE0024C42c896E3dB59ec0149",
       "name": "Ski Mask Dog",
       "symbol": "SKI",
@@ -33,6 +25,14 @@ export const tokens = [
       "symbol": "WETH",
       "decimals": 18,
       "logoURI": "https://ethereum-optimism.github.io/data/WETH/logo.png"
+    },
+    {
+        "chainId": 8453,
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "name": "Tether USD",
+        "symbol": "USDT",
+        "decimals": 6,
+        "logoURI": "https://ethereum-optimism.github.io/data/USDT/logo.png"
     },
     {
       "chainId": 8453,

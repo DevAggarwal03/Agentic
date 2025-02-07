@@ -1,5 +1,6 @@
 export interface Pool {
-  id: string;
+  name: string;
+  id: number;   
   address: string;
   token0: {
     symbol: string;
@@ -18,114 +19,67 @@ export interface Pool {
 
 export const pools: Pool[] = [
   {
-    id: "uniswap-v3-usdc-eth",
-    address: "0x4C36388Be6F416A29C8d8Eee81C771cE6bE14B18",
+    name: "uniswap-v3-usdc-cbBTC",
+    id: 1,
+    address: "0xfBB6Eed8e7aa03B138556eeDaF5D271A5E1e43ef",
     token0: {
       symbol: "USDC",
       address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
     },
     token1: {
-      symbol: "ETH",
-      address: "0x0000000000000000000000000000000000000000",
-      logoURI: "https://res.cloudinary.com/dg5ddxvko/image/upload/v1738785154/eth-diamond-black-gray_dlsr8g.png"
-    },
-    fee: 500,
-    source: "Uniswap V3",
-    chainId: 8453
-  },
-  {
-    id: "uniswap-v3-usdc-weth",
-    address: "0x205C9B8c1fCa803B779b1eB4B887Aa0E00FE629",
-    token0: {
-      symbol: "USDC",
-      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
-    },
-    token1: {
-      symbol: "WETH",
-      address: "0x4200000000000000000000000000000000000006",
-      logoURI: "https://ethereum-optimism.github.io/data/WETH/logo.png"
-    },
-    fee: 500,
-    source: "Uniswap V3",
-    chainId: 8453
-  },
-  {
-    id: "uniswap-v3-usdc-dai",
-    address: "0x6FDC8415B654B0F60475944A0b9421Dc36ee1363",
-    token0: {
-      symbol: "USDC",
-      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
-    },
-    token1: {
-      symbol: "DAI",
-      address: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
-      logoURI: "https://ethereum-optimism.github.io/data/DAI/logo.svg"
-    },
-    fee: 100,
-    source: "Uniswap V3",
-    chainId: 8453
-  },
-  {
-    id: "uniswap-v3-weth-cbeth",
-    address: "0x0D7E906BD9cAFa154b048cFa766Cc1E54E39AF9B",
-    token0: {
-      symbol: "WETH",
-      address: "0x4200000000000000000000000000000000000006",
-      logoURI: "https://ethereum-optimism.github.io/data/WETH/logo.png"
-    },
-    token1: {
-      symbol: "cbETH",
-      address: "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
-      logoURI: "https://ethereum-optimism.github.io/data/cbETH/logo.svg"
-    },
-    fee: 100,
-    source: "Uniswap V3",
-    chainId: 8453
-  },
-  {
-    id: "uniswap-v3-usdc-usdbc",
-    address: "0x4C36388Be6F416A29C8d8Eee81C771cE6bE14B18",
-    token0: {
-      symbol: "USDC",
-      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
-    },
-    token1: {
-      symbol: "USDbC",
-      address: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
-      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
-    },
-    fee: 100,
-    source: "Uniswap V3",
-    chainId: 8453
-  },
-  {
-    id: "uniswap-v3-weth-toshi",
-    address: "0xAC1Bd2486aAf3B5C0fc3Fd868558b082a531B2B4",
-    token0: {
-      symbol: "WETH",
-      address: "0x4200000000000000000000000000000000000006",
-      logoURI: "https://ethereum-optimism.github.io/data/WETH/logo.png"
-    },
-    token1: {
-      symbol: "TOSHI",
-      address: "0xAC1Bd2486aAf3B5C0fc3Fd868558b082a531B2B4",
-      logoURI: "https://coin-images.coingecko.com/coins/images/31126/large/Toshi_Logo_-_Circular.png"
+      symbol: "cbBTC",
+      address: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      logoURI: "https://assets.coingecko.com/coins/images/40143/standard/cbbtc.webp"
     },
     fee: 3000,
     source: "Uniswap V3",
     chainId: 8453
   },
   {
-    id: "uniswap-v3-weth-aero",
-    address: "0x2073D8035bB2b0F2e85aAF5a8732C6c0c06D5561",
+    name: "uniswap-v3-eth-usdc",
+    id: 2,
+    address: "0x6c561B446416E1A00E8E93E221854d6eA4171372",
     token0: {
-      symbol: "WETH",
+      symbol: "ETH",
       address: "0x4200000000000000000000000000000000000006",
-      logoURI: "https://ethereum-optimism.github.io/data/WETH/logo.png"
+      logoURI: "https://res.cloudinary.com/dg5ddxvko/image/upload/v1738785154/eth-diamond-black-gray_dlsr8g.png"
+    },
+    token1: {
+      symbol: "USDC",
+      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
+    },
+    fee: 3000,
+    source: "Uniswap V3",
+    chainId: 8453
+  },
+  {
+    name: "uniswap-v3-eth-cbBTC",
+    id: 3,
+    address: "0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5",
+    token0: {
+      symbol: "ETH",
+      address: "0x4200000000000000000000000000000000000006",
+      logoURI: "https://res.cloudinary.com/dg5ddxvko/image/upload/v1738785154/eth-diamond-black-gray_dlsr8g.png"
+    },
+    token1: {
+      symbol: "cbBTC",
+      address: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      logoURI: "https://assets.coingecko.com/coins/images/40143/standard/cbbtc.webp"
+    },
+    fee: 3000,
+    source: "Uniswap V3",
+    chainId: 8453
+  },
+  {
+    name: "uniswap-v3-eth-aero",
+    id: 4,
+    address: "0x3d5D143381916280ff91407FeBEB52f2b60f33Cf",
+    token0: {
+      symbol: "ETH",
+      address: "0x4200000000000000000000000000000000000006",
+      logoURI: "https://res.cloudinary.com/dg5ddxvko/image/upload/v1738785154/eth-diamond-black-gray_dlsr8g.png"
     },
     token1: {
       symbol: "AERO",
@@ -137,17 +91,18 @@ export const pools: Pool[] = [
     chainId: 8453
   },
   {
-    id: "uniswap-v3-weth-degen",
-    address: "0x6E08Aa8D6Ac6E028282A5B3FD2548a0E89809Ff1",
+    name: "uniswap-v3-usdc-usdt",
+    id: 5,
+    address: "0xD56da2B74bA826f19015E6B7Dd9Dae1903E85DA1",
     token0: {
-      symbol: "WETH",
-      address: "0x4200000000000000000000000000000000000006",
-      logoURI: "https://ethereum-optimism.github.io/data/WETH/logo.png"
+      symbol: "USDC",
+      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      logoURI: "https://ethereum-optimism.github.io/data/USDC/logo.png"
     },
     token1: {
-      symbol: "DEGEN",
-      address: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
-      logoURI: "https://assets.coingecko.com/coins/images/34515/large/android-chrome-512x512.png"
+      symbol: "USDT",
+      address: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      logoURI: "https://ethereum-optimism.github.io/data/USDT/logo.png"
     },
     fee: 3000,
     source: "Uniswap V3",
